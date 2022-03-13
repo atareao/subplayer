@@ -1,10 +1,16 @@
 use sunk::{Client, Streamable};
+use clap::{Command, Arg, AppSettings};
 use sunk::song::Song;
 use dotenv::dotenv;
 use std::env;
 use libmpv::Mpv;
 use md5::compute;
 use rand::prelude::*;
+
+const NAME: &str =env!("CARGO_PKG_NAME");
+const DESCRIPTION: &str =env!("CARGO_PKG_DESCRIPTION");
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 
 fn main() {
     dotenv().ok();
@@ -27,6 +33,11 @@ fn main() {
     }
     println!("Hello, world!");
 
+    let matches = Command::new(NAME)
+        .version(VERSION)
+        .author(AUTHORS)
+        .about(DESCRIPTION);
+
 }
 
 fn gen_salt(length: u8) -> String{
@@ -35,7 +46,7 @@ fn gen_salt(length: u8) -> String{
     let mut rng = rand::thread_rng();
     for _i in 0..length{
         let selected = rng.gen_range(0..chain.len());
-        let slice = &chain[(selected - 1) .. selected];
+        let slice = &chain[selected..selected + 1];
         result = format!("{}{}", &result, slice);
     }
     result
