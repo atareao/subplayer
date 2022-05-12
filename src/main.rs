@@ -1,11 +1,12 @@
+mod cli;
+
 use sunk::{Client, Streamable};
-use clap::{Command, Arg, AppSettings};
 use sunk::song::Song;
 use dotenv::dotenv;
 use std::env;
-use libmpv::Mpv;
 use md5::compute;
 use rand::prelude::*;
+use crate::cli::main_cli;
 
 const NAME: &str =env!("CARGO_PKG_NAME");
 const DESCRIPTION: &str =env!("CARGO_PKG_DESCRIPTION");
@@ -13,6 +14,7 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 
 fn main() {
+    main_cli(NAME, DESCRIPTION, VERSION, AUTHORS);
     dotenv().ok();
     let url = env::var("NV_URL").expect("URL not configured");
     let user = env::var("NV_USER").expect("USER not configured");
@@ -32,12 +34,6 @@ fn main() {
         println!("URl: {}", url);
     }
     println!("Hello, world!");
-
-    let matches = Command::new(NAME)
-        .version(VERSION)
-        .author(AUTHORS)
-        .about(DESCRIPTION);
-
 }
 
 fn gen_salt(length: u8) -> String{
