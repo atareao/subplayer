@@ -15,6 +15,7 @@ const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 
 fn main() {
     main_cli(NAME, DESCRIPTION, VERSION, AUTHORS);
+    println!("-----");
     dotenv().ok();
     let url = env::var("NV_URL").expect("URL not configured");
     let user = env::var("NV_USER").expect("USER not configured");
