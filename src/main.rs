@@ -1,4 +1,5 @@
 mod cli;
+mod config;
 
 use sunk::{Client, Streamable};
 use sunk::song::Song;
