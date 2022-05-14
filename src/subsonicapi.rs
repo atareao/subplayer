@@ -1,6 +1,6 @@
 use rand::prelude::*;
 use md5::compute;
-use roxmltree::Document;
+use serde_json::{Value, Map, json};
 
 
 #[derive(Debug)]
@@ -22,19 +22,27 @@ impl Client{
     pub async fn ping(&self) -> String{
         let salt = Self::gen_salt(8);
         let token = compute(format!("{}{}", &self.password, salt));
-        let url = format!("{}/rest/ping.view?u={}1&t={:x}&s={}&v={}&c={}",
+        let url = format!("{}/rest/ping.view?u={}&t={:x}&s={}&v={}&c={}&f={}",
                           &self.url, &self.username, token, salt, "1.16",
-                          "ncli");
+                          "ncli", "json");
 
         let response = reqwest::get(url)
             .await.unwrap()
             .text()
             .await.unwrap();
-        println!("{}", &response);
-        let doc = Document::parse(&response).unwrap();
-        let root = doc.root().first_child().unwrap().attribute("status").unwrap();
-        println!("{}", root);
-        "".to_string()
+        let parsed: Value = serde_json::from_str(&response).unwrap();
+        let data: Map<String, Value> = parsed.as_object().unwrap().clone();
+        println!("{:?}", &data);
+        //{"subsonic-response": Object({"error": Object({"code": Number(40), "message": String("Wrong username or password")}), "serverVersion": String("0.47.5 (86fe1e3b)"), "status": String("failed"), "type": String("navidrome"), "version": String("1.16.1")})}
+        //{"subsonic-response": Object({"serverVersion": String("0.47.5 (86fe1e3b)"), "status": String("ok"), "type": String("navidrome"), "version": String("1.16.1")})}
+        if let Some(response) = data.get("subsonic-response"){
+            if let Some(status) = response.get("status"){
+                if status.as_str().unwrap() == "ok"{
+                    return "pong".to_string();
+                }
+            }
+        }
+        "ko".to_string()
     }
 
     pub fn scan_library(&self){
