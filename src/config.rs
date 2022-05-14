@@ -5,9 +5,9 @@ use std::{fs, path::PathBuf};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Config{
-    url: String,
-    username: String,
-    password: String,
+    pub url: String,
+    pub username: String,
+    pub password: String,
 }
 
 impl Config {
