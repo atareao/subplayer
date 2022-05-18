@@ -19,7 +19,7 @@ impl Client{
         }
     }
 
-    pub async fn ping(&self) -> String{
+    pub async fn ping(&self) -> Result<String, String>{
         let salt = Self::gen_salt(8);
         let token = compute(format!("{}{}", &self.password, salt));
         let url = format!("{}/rest/ping.view?u={}&t={:x}&s={}&v={}&c={}&f={}",
@@ -38,11 +38,11 @@ impl Client{
         if let Some(response) = data.get("subsonic-response"){
             if let Some(status) = response.get("status"){
                 if status.as_str().unwrap() == "ok"{
-                    return "pong".to_string();
+                    return Ok("pong".to_string());
                 }
             }
         }
-        "ko".to_string()
+        Err("ko".to_string())
     }
 
     pub fn scan_library(&self){
